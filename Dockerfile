@@ -1,11 +1,13 @@
-FROM gradle:6.4.1-jdk11 as gradle
+FROM gradle:6.1.1-jdk11 as gradle
 
 COPY . /home/gradle/server
 WORKDIR /home/gradle/server
-RUN gradle build -x test
+RUN gradle build
 
-FROM openjdk:alpine
+FROM openjdk:11.0.1
 WORKDIR /home/server-kotlin
-COPY --from=gradle /home/gradle/server/build/libs/server-0.0.5.jar /home/server-kotlin/
+COPY --from=gradle /home/gradle/server/build/distributions /home/server-kotlin/
 
-CMD ["java", "-jar", "-Xmx128m", "/home/server-kotlin/server-0.0.5.jar"]
+COPY start_last_local.sh /home/scripts/start_last_local.sh
+
+CMD ["/bin/bash", "-c", "/home/scripts/start_last_local.sh"]
